@@ -1,0 +1,21 @@
+# Default GMSS feature pipeline configuration.
+# Mirrors src/gmss/config.py:FeatureConfig. Values follow Mel-RoFormer.
+# For the GuideSep setup use: sample_rate=16000, n_fft=1024, hop_length=256.
+
+feature:
+  # audio
+  sample_rate: 44100
+  mono: true
+  # stft
+  n_fft: 2048
+  hop_length: 512
+  win_length: null      # falls back to n_fft
+  normalized: false
+  # mel-band projection
+  num_bands: 60
+  dim: 384
+
+dataset:
+  segment_seconds: 3.0
+  train: true
+  seed: 0
