@@ -1,0 +1,15 @@
+_target_: src.models.separation_smoke_module.SeparationSmokeLitModule
+
+feature:
+  _target_: src.models.components.feature_config.FeatureConfig
+  sample_rate: 16000
+  mono: true
+  n_fft: 1024
+  hop_length: 256
+  win_length: null
+  normalized: false
+  num_bands: 60
+  dim: 384
+
+init_identity_mask: true
+case_name: ""

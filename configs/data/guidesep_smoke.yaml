@@ -1,0 +1,24 @@
+_target_: src.data.guidesep_datamodule.GuideSepDataModule
+
+feature:
+  _target_: src.models.components.feature_config.FeatureConfig
+  sample_rate: 16000
+  mono: true
+  n_fft: 1024
+  hop_length: 256
+  win_length: null
+  normalized: false
+  num_bands: 60
+  dim: 384
+
+triplets:
+  - mixture: ${paths.root_dir}/external/GuideSep/mix/real_3_mix.wav
+    reference: ${paths.root_dir}/external/GuideSep/cond/real_3_humming.wav
+    target: ${paths.root_dir}/external/GuideSep/mix/real_3_mix.wav
+
+segment_seconds: 3.0
+train: true
+seed: 0
+batch_size: 1
+num_workers: 0
+pin_memory: false

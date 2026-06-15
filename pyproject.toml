@@ -1,0 +1,6 @@
+[tool.pytest.ini_options]
+addopts = [
+  "--color=yes",
+  "--strict-markers",
+]
+testpaths = "tests/"

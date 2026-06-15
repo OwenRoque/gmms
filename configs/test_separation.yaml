@@ -1,0 +1,22 @@
+# @package _global_
+
+defaults:
+  - _self_
+  - data: guidesep_smoke
+  - model: separation_smoke
+  - trainer: cpu
+  - paths: default
+  - extras: default
+  - hydra: default
+
+task_name: test_separation
+tags: ["dev", "smoke", "separation"]
+seed: 0
+
+smoke_cases:
+  - name: "init_identity=True (esperado ~= mixture)"
+    init_identity_mask: true
+    case_name: "init_identity=True (esperado ~= mixture)"
+  - name: "init_identity=False (mascara aleatoria, demo end-to-end)"
+    init_identity_mask: false
+    case_name: "init_identity=False (mascara aleatoria, demo end-to-end)"

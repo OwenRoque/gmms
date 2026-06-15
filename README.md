@@ -1,70 +1,87 @@
 # GMSS — Guided Music Source Separation
 
-A guided source-separation system inspired by **Mel-Band RoFormer**, adapted to
-take a **reference/condition** signal (e.g. a hummed melody) as in
-**User-Guided Generative Source Separation**.
+Guided source-separation system inspired by **Mel-Band RoFormer**, adapted to take a
+**reference/condition** signal (e.g. a hummed melody) as in **User-Guided Generative
+Source Separation**.
 
-This repository currently implements **only the data pipeline and feature
-extraction** stages. 
-
-<!-- No model backbone, training loop, diffusion, multi-resSTFT, or FluidSynth yet. -->
+Built on [lightning-hydra-template](https://github.com/ashleve/lightning-hydra-template/)
+(PyTorch Lightning + Hydra).
 
 ```
-waveform (mixture) ─┐
-waveform (reference)─┤→ AudioLoader → STFTFeatureExtractor → MelBandProjection → [B, T, bands, dim]
-waveform (target) ──┘
+mixture waveform → STFT → MelBandProjection → MelBandMaskEstimator → iSTFT → separated
 ```
 
 ## Project structure
 
 ```
 gmss/
+├── .project-root
 ├── configs/
-│   └── default.yaml              # mirrors FeatureConfig
-├── scripts/
-│   └── test_pipeline.py          # loads one sample, prints tensor shapes
-├── src/gmss/
-│   ├── config.py                 # FeatureConfig (shared STFT/mel params)
+│   ├── test_separation.yaml
+│   ├── data/guidesep_smoke.yaml
+│   ├── model/separation_smoke.yaml
+│   ├── trainer/cpu.yaml
+│   ├── paths/default.yaml
+│   ├── hydra/default.yaml
+│   └── extras/default.yaml
+├── src/
+│   ├── test_separation.py          # Hydra entry point (smoke test)
 │   ├── data/
-│   │   ├── audio_loader.py       # AudioLoader: load → (mono) → resample → normalize
-│   │   └── dataset.py            # GuidedSeparationDataset (mixture/reference/target)
-│   └── features/
-│       ├── stft.py               # STFTFeatureExtractor (forward + inverse)
-│       └── mel_band.py           # MelBandProjection (Mel-RoFormer band split)
-├── external/                     # reference repos (BS-RoFormer, GuideSep)
-├── papers/                       # reference papers
+│   │   ├── audio_loader.py
+│   │   ├── dataset.py
+│   │   └── guidesep_datamodule.py
+│   ├── models/
+│   │   ├── separation_smoke_module.py
+│   │   └── components/
+│   │       ├── feature_config.py
+│   │       ├── minimal_separator.py
+│   │       └── features/
+│   └── utils/
+├── external/GuideSep/              # reference audio (gitignored)
 └── requirements.txt
 ```
 
-## Setup
+## Setup (conda)
 
 ```bash
-python3 -m venv .venv
-. .venv/bin/activate
-pip install -r requirements.txt          # CPU torch: add --index-url https://download.pytorch.org/whl/cpu
+conda create -n gmss python=3.8
+conda activate gmss
+
+# install pytorch (>=2.0.1)
+conda install pytorch torchvision torchaudio -c pytorch -c nvidia
+
+pip install -r requirements.txt
 ```
 
-## Run the smoke test
+On CPU-only machines, replace the conda line with:
 
 ```bash
-.venv/bin/python scripts/test_pipeline.py
+conda install pytorch torchvision torchaudio cpuonly -c pytorch
 ```
 
-Expected (abridged) output:
+## Run the separation smoke test
 
+```bash
+conda activate gmss
+python src/test_separation.py
 ```
-[1] Waveforms: mixture (48000,)  reference (188775,)  target (48000,)
-[2] STFT of mixture: (1, 48000) -> (1, 513, 188, 2)
-[3] Mel-band projection: (1, 513, 188, 2) -> (1, 188, 60, 384)
-[4] iSTFT round-trip: RMSE vs input ≈ 1e-8   # lossless
+
+Override config from CLI:
+
+```bash
+python src/test_separation.py data.segment_seconds=5.0
 ```
+
+Expected metrics:
+
+| Case | RMSE vs mixture |
+|------|-----------------|
+| `init_identity=True` | ≈ 1e-8 (output ≈ mixture) |
+| `init_identity=False` | ~0.15 (random mask, end-to-end demo) |
 
 ## Key design notes
 
-- **One config object** (`FeatureConfig`) feeds every stage so STFT/iSTFT/mel
-  parameters can never drift apart.
-- **`MelBandProjection` is a band *split*, not a mel spectrogram** — it groups
-  raw complex FFT bins into overlapping mel bands and projects each with a
-  per-band `RMSNorm → Linear`, preserving phase for later masking + iSTFT.
-- **Manifest-driven dataset**: a list of `{mixture, reference, target}` paths,
-  decoupling data location from code.
+- **Hydra configs** compose data, model, and trainer; paths resolve via `${paths.root_dir}`.
+- **`FeatureConfig`** is shared across STFT, mel-band split, and mask estimator.
+- **`MelBandProjection`** is a band *split*, not a mel spectrogram — it preserves complex phase for iSTFT.
+- **Manifest-driven dataset**: triplets `{mixture, reference, target}` decouple data paths from code.

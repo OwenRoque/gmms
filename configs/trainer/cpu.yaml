@@ -1,0 +1,7 @@
+_target_: lightning.pytorch.trainer.Trainer
+
+default_root_dir: ${paths.output_dir}
+accelerator: cpu
+devices: 1
+enable_checkpointing: false
+logger: false
