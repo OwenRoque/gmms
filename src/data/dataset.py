@@ -24,6 +24,17 @@ class Sample(TypedDict):
     target: torch.Tensor
 
 
+class RawSample(TypedDict, total=False):
+    """Muestra interna antes del collator (sin mixture)."""
+
+    target: torch.Tensor
+    reference: torch.Tensor
+    residual: torch.Tensor
+    target_instrument: str
+    reference_instrument: str
+    track_id: str
+
+
 class GuidedSeparationDataset(Dataset):
     def __init__(
         self,

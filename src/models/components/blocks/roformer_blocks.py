@@ -18,11 +18,13 @@ from __future__ import annotations
 import torch
 import torch.nn.functional as F
 from einops import rearrange
+from einops.layers.torch import Rearrange
 from rotary_embedding_torch import RotaryEmbedding
 from torch import nn
 from typing import Optional, Tuple
 
 from src.models.components.feature_config import FeatureConfig
+from src.models.components.sdp_attention import sdp_attention
 
 
 # ---------------------------------------------------------------------------
@@ -136,9 +138,10 @@ class Attention(nn.Module):
             q = self.rotary_embed.rotate_queries_or_keys(q)
             k = self.rotary_embed.rotate_queries_or_keys(k)
 
-        out = F.scaled_dot_product_attention(
+        out = sdp_attention(
             q, k, v,
             dropout_p=self._dropout if self.training else 0.0,
+            flash=self._flash,
         )
 
         gates = self.to_gates(x_norm)

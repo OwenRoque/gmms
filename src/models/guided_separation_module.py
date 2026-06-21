@@ -69,6 +69,31 @@ class GuidedSeparationLitModule(LightningModule):
     # Loss
     # ------------------------------------------------------------------
 
+    @staticmethod
+    def _align_channels(
+        separated: torch.Tensor,
+        target: torch.Tensor,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Reconcilia la dimension de canal (convencion BS-RoFormer).
+
+        El separador mono devuelve (B, T) y el estereo (B, C, T). El target
+        del collator es siempre (B, T). Igualamos el numero de dimensiones
+        agregando un eje de canal cuando hace falta, y validamos que el
+        numero de canales coincida para evitar broadcast silencioso.
+        """
+        if separated.ndim == 3 and target.ndim == 2:
+            target = target.unsqueeze(1)            # (B, 1, T)
+        elif target.ndim == 3 and separated.ndim == 2:
+            separated = separated.unsqueeze(1)
+
+        if separated.shape[:-1] != target.shape[:-1]:
+            raise ValueError(
+                f"Desajuste de forma separated={tuple(separated.shape)} vs "
+                f"target={tuple(target.shape)}. Verifica que data.feature.mono "
+                f"y model.feature.mono coincidan."
+            )
+        return separated, target
+
     def _compute_loss(
         self,
         separated: torch.Tensor,
@@ -79,6 +104,8 @@ class GuidedSeparationLitModule(LightningModule):
         Returns:
             (total_loss, l1_loss, mr_stft_loss)
         """
+        separated, target = self._align_channels(separated, target)
+
         # Asegura longitudes iguales (istft puede truncar un sample)
         min_len = min(separated.shape[-1], target.shape[-1])
         separated = separated[..., :min_len]
@@ -89,7 +116,9 @@ class GuidedSeparationLitModule(LightningModule):
         mr_stft = torch.tensor(0.0, device=separated.device)
 
         if self._multi_stft_loss_weight > 0.0:
-            # Aplanar canales para torch.stft: (B*C, T)
+            # Aplanar todas las dimensiones de lote/canal: (..., T) -> (N, T)
+            # Tras _align_channels separated y target comparten forma, por lo
+            # que N es identico en ambos (igual que el rearrange del original).
             s_flat = separated.reshape(-1, min_len)
             t_flat = target.reshape(-1, min_len)
 

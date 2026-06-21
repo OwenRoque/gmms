@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any, Dict, Tuple
 
 import hydra
@@ -48,6 +49,7 @@ def run_separation_smoke(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any
 
 @hydra.main(version_base="1.3", config_path="../configs", config_name="test_separation.yaml")
 def main(cfg: DictConfig) -> None:
+    Path(cfg.paths.output_dir).mkdir(parents=True, exist_ok=True)
     extras(cfg)
     run_separation_smoke(cfg)
 

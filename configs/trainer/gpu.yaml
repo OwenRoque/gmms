@@ -1,14 +1,17 @@
 _target_: lightning.pytorch.trainer.Trainer
 
 default_root_dir: ${paths.output_dir}
-accelerator: cpu
+accelerator: gpu
 devices: 1
+precision: 16-mixed
+
 max_epochs: 1
 log_every_n_steps: 1
 num_sanity_val_steps: 0
 enable_checkpointing: false
 logger: false
 
+# Limites opcionales (null = sin limite). Usar enteros para smoke tests.
 limit_train_batches: null
 limit_val_batches: null
 check_val_every_n_epoch: 1

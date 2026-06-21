@@ -1,0 +1,52 @@
+# @package _global_.data
+# DataModule on-the-fly BabySlakh + MoisesDB + HumTrans + Aegean SF2.
+
+_target_: src.data.slakh.slakh_guided_datamodule.SlakhGuidedDataModule
+
+slakh_root: ${paths.data_dir}/babyslakh_16k
+layout: babyslakh
+
+moisesdb_root: ${paths.data_dir}/moisesdb/moisesdb/moisesdb_v0.1
+humtrans_root: ${paths.data_dir}/HumTrans
+
+soundfont_path: ${paths.root_dir}/AegeanSymphonicOrchestra-SND/AegeanSymphonicOrchestra-SND.sf2
+instruments_xml: ${paths.root_dir}/AegeanSymphonicOrchestra-SND/ASO-SND-instruments.xml
+
+feature:
+  _target_: src.models.components.feature_config.FeatureConfig
+  sample_rate: 16000
+  mono: true
+  n_fft: 1024
+  hop_length: 256
+  win_length: null
+  normalized: false
+  num_bands: 60
+  dim: 384
+
+segment_seconds: 4.0
+humming_prob: 0.4
+org_mix_prob: 0.3
+augment: true
+tar_ins: Piano
+
+auto_extract_humtrans: true
+extract_humtrans_wav: true
+test_humming: false
+
+batch_size: 2
+num_workers: 0
+pin_memory: true
+
+collator:
+  snr_mean: -2.5
+  snr_std: 1.5
+  snr_min: -5.0
+  snr_max: 5.0
+  remix: true
+
+split:
+  strategy: ratio
+  train_ratio: 0.8
+  val_ratio: 0.1
+  test_ratio: 0.1
+  seed: 42

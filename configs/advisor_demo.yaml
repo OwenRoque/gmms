@@ -1,0 +1,81 @@
+# @package _global_
+# Demo para asesor: entrenamiento corto en GPU con datos on-the-fly (BabySlakh).
+# Objetivo: ~30-90 min segun hardware. Genera checkpoint + logs.
+
+defaults:
+  - _self_
+  - data: slakh_babyslakh
+  - model: guided_separation
+  - trainer: gpu
+  - callbacks: default
+  - logger: csv
+  - paths: default
+  - extras: default
+  - hydra: default
+
+task_name: advisor_demo
+tags: ["demo", "advisor", "slakh", "gpu"]
+seed: 42
+
+train: true
+test: true
+
+optimized_metric: val/loss
+optimized_metric_mode: min
+
+extras:
+  print_config: true
+
+model:
+  feature:
+    sample_rate: 16000
+    mono: true
+    n_fft: 1024
+    hop_length: 256
+    dim: 64
+    depth: 2
+    time_transformer_depth: 1
+    freq_transformer_depth: 1
+    linear_transformer_depth: 0
+    heads: 4
+    dim_head: 16
+    mask_estimator_depth: 1
+    flash_attn: true
+    multi_stft_loss_weight: 0.0
+  lr: 1.0e-4
+  multi_stft_loss_weight: 0.0
+
+data:
+  feature:
+    sample_rate: 16000
+    mono: true
+    n_fft: 1024
+    hop_length: 256
+    dim: 64
+    depth: 2
+    time_transformer_depth: 1
+    freq_transformer_depth: 1
+    linear_transformer_depth: 0
+    heads: 4
+    dim_head: 16
+    mask_estimator_depth: 1
+  segment_seconds: 2.0
+  batch_size: 1
+  num_workers: 0
+  pin_memory: true
+  humming_prob: 0.0
+  org_mix_prob: 1.0
+  extract_humtrans_wav: false
+
+trainer:
+  accelerator: gpu
+  devices: 1
+  precision: 16-mixed
+  max_epochs: 2
+  log_every_n_steps: 1
+  num_sanity_val_steps: 0
+  enable_checkpointing: true
+  limit_train_batches: 8
+  limit_val_batches: 2
+  check_val_every_n_epoch: 1
+  logger: true

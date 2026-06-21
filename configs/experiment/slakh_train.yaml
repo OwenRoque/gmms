@@ -1,0 +1,56 @@
+# @package _global_
+defaults:
+  - _self_
+  - data: slakh_babyslakh
+  - model: guided_separation
+  - trainer: cpu
+  - paths: default
+  - extras: default
+  - hydra: default
+
+task_name: slakh_guided_train
+tags: ["train", "slakh", "guided"]
+seed: 42
+
+trainer:
+  max_epochs: 2
+  log_every_n_steps: 1
+  enable_checkpointing: true
+
+model:
+  feature:
+    sample_rate: 16000
+    mono: true
+    n_fft: 1024
+    hop_length: 256
+    dim: 64
+    depth: 2
+    time_transformer_depth: 1
+    freq_transformer_depth: 1
+    linear_transformer_depth: 0
+    heads: 4
+    dim_head: 16
+    mask_estimator_depth: 1
+    multi_stft_loss_weight: 1.0
+  lr: 1.0e-4
+  multi_stft_loss_weight: 1.0
+
+data:
+  feature:
+    sample_rate: 16000
+    mono: true
+    n_fft: 1024
+    hop_length: 256
+    dim: 64
+    depth: 2
+    time_transformer_depth: 1
+    freq_transformer_depth: 1
+    linear_transformer_depth: 0
+    heads: 4
+    dim_head: 16
+    mask_estimator_depth: 1
+  segment_seconds: 3.0
+  batch_size: 2
+  num_workers: 0
+  humming_prob: 0.4
+  extract_humtrans_wav: true

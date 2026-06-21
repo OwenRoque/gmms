@@ -27,6 +27,7 @@ from torch import nn
 from typing import Optional
 
 from src.models.components.feature_config import FeatureConfig
+from src.models.components.sdp_attention import sdp_attention
 
 
 class GuidedCrossAttention(nn.Module):
@@ -52,6 +53,7 @@ class GuidedCrossAttention(nn.Module):
         self.head_dim = self.dim // self.heads
         self.scale = self.head_dim**-0.5
         self.attn_dropout = dropout
+        self.flash_attn = config.flash_attn
 
         # Pre-LayerNorm independiente para query (mezcla) y key/value (referencia).
         self.norm_query = nn.LayerNorm(self.dim)
@@ -119,11 +121,12 @@ class GuidedCrossAttention(nn.Module):
 
         # Scaled dot-product attention (kernel flash / memory-efficient si esta disponible).
         # scores implicitos: (B*F, H, T, S), softmax sobre S.
-        attn_out = F.scaled_dot_product_attention(
+        attn_out = sdp_attention(
             q,
             k,
             v,
             dropout_p=self.attn_dropout if self.training else 0.0,
+            flash=self.flash_attn,
         )
 
         # Merge heads: (B*F, H, T, E) -> (B*F, T, D).

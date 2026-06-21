@@ -1,5 +1,4 @@
-root_dir: ${oc.env:PROJECT_ROOT}
-data_dir: ${paths.root_dir}/data/
-log_dir: ${paths.root_dir}/logs/
-output_dir: ${hydra:runtime.output_dir}
-work_dir: ${hydra:runtime.cwd}
+root_dir: ${hydra:runtime.cwd}
+data_dir: /media/hadoop1/D/Datasets
+output_dir: ${hydra:runtime.cwd}/outputs/${task_name}
+log_dir: ${hydra:runtime.cwd}/logs

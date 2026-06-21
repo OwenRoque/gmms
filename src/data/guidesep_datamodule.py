@@ -51,6 +51,21 @@ class GuideSepDataModule(LightningDataModule):
             for key in ("mixture", "reference", "target")
         }
 
+    def train_dataloader(self) -> DataLoader[Any]:
+        if self.dataset is None:
+            raise RuntimeError("Call setup() before requesting train_dataloader().")
+        return DataLoader(
+            dataset=self.dataset,
+            batch_size=self.hparams.batch_size,
+            num_workers=self.hparams.num_workers,
+            pin_memory=self.hparams.pin_memory,
+            shuffle=True,
+            collate_fn=self._collate,
+        )
+
+    def val_dataloader(self) -> DataLoader[Any]:
+        return self.test_dataloader()
+
     def test_dataloader(self) -> DataLoader[Any]:
         if self.dataset is None:
             raise RuntimeError("Call setup() before requesting test_dataloader().")

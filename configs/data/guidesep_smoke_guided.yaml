@@ -1,0 +1,35 @@
+# @package _global_.data
+# GuideSepDataModule con modelo guided (WAV estaticos, sin on-the-fly).
+
+_target_: src.data.guidesep_datamodule.GuideSepDataModule
+
+feature:
+  _target_: src.models.components.feature_config.FeatureConfig
+  sample_rate: 16000
+  mono: true
+  n_fft: 1024
+  hop_length: 256
+  win_length: null
+  normalized: false
+  num_bands: 60
+  dim: 64
+  depth: 1
+  time_transformer_depth: 1
+  freq_transformer_depth: 1
+  linear_transformer_depth: 0
+  heads: 4
+  dim_head: 16
+  mask_estimator_depth: 1
+  flash_attn: true
+
+triplets:
+  - mixture: ${paths.root_dir}/external/GuideSep/mix/real_3_mix.wav
+    reference: ${paths.root_dir}/external/GuideSep/cond/real_3_humming.wav
+    target: ${paths.root_dir}/external/GuideSep/mix/real_3_mix.wav
+
+segment_seconds: 1.0
+train: true
+seed: 0
+batch_size: 1
+num_workers: 0
+pin_memory: true

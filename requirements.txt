@@ -39,3 +39,5 @@ pytest
 pyyaml==6.0
 matplotlib
 pyloudnorm
+scipy
+pyfluidsynth

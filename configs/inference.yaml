@@ -1,0 +1,37 @@
+# @package _global_
+
+defaults:
+  - _self_
+  - data: guidesep_smoke
+  - model: guided_separation
+  - trainer: auto
+  - paths: default
+  - extras: default
+  - hydra: default
+
+task_name: inference
+seed: 42
+
+mixture_path: ${paths.root_dir}/external/GuideSep/mix/real_3_mix.wav
+reference_path: ${paths.root_dir}/external/GuideSep/cond/real_3_humming.wav
+output_path: ${paths.output_dir}/separated.wav
+
+checkpoint_path: null
+segment_seconds: 3.0
+
+# Modelo ligero para inferencia rapida (ajustar si usas ckpt de advisor_demo)
+model:
+  feature:
+    sample_rate: 16000
+    mono: true
+    n_fft: 1024
+    hop_length: 256
+    dim: 64
+    depth: 2
+    time_transformer_depth: 1
+    freq_transformer_depth: 1
+    linear_transformer_depth: 0
+    heads: 4
+    dim_head: 16
+    mask_estimator_depth: 1
+    flash_attn: true

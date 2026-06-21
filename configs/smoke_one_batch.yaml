@@ -1,0 +1,62 @@
+# @package _global_
+# Smoke test: un batch Slakh on-the-fly + forward + 1 training step (GPU).
+
+defaults:
+  - _self_
+  - data: slakh_babyslakh
+  - model: guided_separation
+  - trainer: auto
+  - paths: default
+  - extras: default
+  - hydra: default
+
+task_name: smoke_one_batch
+tags: ["dev", "smoke", "slakh"]
+seed: 42
+
+extras:
+  print_config: false
+
+model:
+  feature:
+    sample_rate: 16000
+    mono: true
+    n_fft: 1024
+    hop_length: 256
+    dim: 64
+    depth: 1
+    time_transformer_depth: 1
+    freq_transformer_depth: 1
+    linear_transformer_depth: 0
+    heads: 4
+    dim_head: 16
+    mask_estimator_depth: 1
+    flash_attn: true
+  lr: 1.0e-4
+  multi_stft_loss_weight: 0.0
+
+data:
+  feature:
+    sample_rate: 16000
+    mono: true
+    n_fft: 1024
+    hop_length: 256
+    dim: 64
+    depth: 1
+    time_transformer_depth: 1
+    freq_transformer_depth: 1
+    linear_transformer_depth: 0
+    heads: 4
+    dim_head: 16
+    mask_estimator_depth: 1
+  segment_seconds: 1.5
+  batch_size: 1
+  num_workers: 0
+  pin_memory: true
+  humming_prob: 0.0
+  org_mix_prob: 1.0
+  extract_humtrans_wav: false
+
+trainer:
+  accelerator: gpu
+  devices: 1

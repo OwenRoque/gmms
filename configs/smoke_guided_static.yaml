@@ -1,0 +1,51 @@
+# @package _global_
+# Smoke del pipeline GuidedSeparator con WAV estaticos (sin FluidSynth).
+# Para prueba rapida usa smoke_guided_minimal.yaml
+
+defaults:
+  - _self_
+  - data: guidesep_smoke_guided
+  - model: guided_separation
+  - trainer: auto
+  - paths: default
+  - extras: default
+  - hydra: default
+
+task_name: smoke_guided_static
+tags: ["dev", "smoke", "guided"]
+seed: 42
+
+extras:
+  print_config: false
+
+model:
+  feature:
+    sample_rate: 16000
+    mono: true
+    n_fft: 1024
+    hop_length: 256
+    dim: 64
+    depth: 1
+    time_transformer_depth: 1
+    freq_transformer_depth: 1
+    linear_transformer_depth: 0
+    heads: 4
+    dim_head: 16
+    mask_estimator_depth: 1
+    flash_attn: true
+  lr: 1.0e-4
+  multi_stft_loss_weight: 0.0
+
+data:
+  segment_seconds: 2.0
+
+trainer:
+  max_epochs: 1
+  limit_train_batches: 2
+  limit_val_batches: 0
+  num_sanity_val_steps: 0
+  enable_checkpointing: true
+  logger: false
+
+train: true
+test: false
