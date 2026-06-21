@@ -1,0 +1,51 @@
+# @package _global_.model
+# GuidedSeparationLitModule — backbone Mel-RoFormer completo con condicionamiento.
+#
+# Para un smoke test rapido usa depth=1, time/freq _depth=1, dim=64.
+# Para produccion usa depth=6, dim=384 y aumenta time/freq_depth.
+
+_target_: src.models.guided_separation_module.GuidedSeparationLitModule
+
+feature:
+  _target_: src.models.components.feature_config.FeatureConfig
+
+  # --- Audio / STFT ---
+  sample_rate: 44100
+  mono: false               # false = estereo (audio_channels=2)
+  n_fft: 2048
+  hop_length: 512
+  win_length: null
+  normalized: false
+
+  # --- Band split ---
+  num_bands: 60
+  dim: 384
+
+  # --- Guided cross-attention ---
+  cross_attn_heads: 8
+  cross_attn_dropout: 0.0
+
+  # --- RoFormer backbone ---
+  depth: 6
+  time_transformer_depth: 2
+  freq_transformer_depth: 2
+  linear_transformer_depth: 1
+  dim_head: 64
+  heads: 8
+  attn_dropout: 0.1
+  ff_dropout: 0.1
+  ff_mult: 4
+  flash_attn: true
+  add_value_residual: false   # true requiere mas VRAM pero mejora calidad
+
+  # --- Mask estimator ---
+  mask_estimator_depth: 2
+  mlp_expansion_factor: 4
+
+  # --- Loss ---
+  multi_stft_loss_weight: 1.0
+
+# Optimizador
+lr: 1.0e-4
+weight_decay: 0.0
+multi_stft_loss_weight: 1.0

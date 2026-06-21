@@ -1,10 +1,3 @@
-.cursor/
-external/
-papers/
-logs/
-outputs/
-multirun/
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -42,3 +35,10 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+.cursor/
+external/
+papers/
+logs/
+outputs/
+multirun/

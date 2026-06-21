@@ -17,6 +17,10 @@ einops
 six==1.16.0
 local-attention>=1.8.4
 
+# --------- roformer backbone --------- #
+rotary_embedding_torch       # RoPE para Time/Freq Transformer
+beartype                     # type-checking runtime (requerido por rotary_embedding_torch)
+
 # --------- audio --------- #
 soundfile
 torchaudio

@@ -1,0 +1,31 @@
+# @package _global_.data
+# GuideSepDataModule en modo estereo (mono: false).
+# AudioLoader devuelve (C, T) donde C = canales del archivo.
+# Si el archivo WAV es mono, STFTFeatureExtractor lo expande a C=2 automaticamente.
+
+_target_: src.data.guidesep_datamodule.GuideSepDataModule
+
+feature:
+  _target_: src.models.components.feature_config.FeatureConfig
+  sample_rate: 44100
+  mono: false         # estereo
+  n_fft: 2048
+  hop_length: 512
+  win_length: null
+  normalized: false
+  num_bands: 60
+  dim: 384
+  cross_attn_heads: 8
+  cross_attn_dropout: 0.0
+
+triplets:
+  - mixture:   ${paths.root_dir}/external/GuideSep/mix/real_3_mix.wav
+    reference: ${paths.root_dir}/external/GuideSep/cond/real_3_humming.wav
+    target:    ${paths.root_dir}/external/GuideSep/mix/real_3_mix.wav
+
+segment_seconds: 3.0
+train: true
+seed: 0
+batch_size: 1
+num_workers: 0
+pin_memory: false

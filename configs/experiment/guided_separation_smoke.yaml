@@ -1,0 +1,42 @@
+# @package _global_
+# Smoke test del pipeline GuidedSeparator (backbone completo, config minima).
+# Usa dim=64, depth=1 para ejecutar rapidamente en CPU.
+
+defaults:
+  - override /data: guidesep_stereo
+  - override /model: guided_separation
+  - override /trainer: cpu
+  - _self_
+
+task_name: guided_separation_smoke
+tags: ["dev", "guided", "roformer", "stereo"]
+seed: 42
+
+# Sobreescribir a config minimal para smoke test
+model:
+  feature:
+    dim: 64
+    depth: 1
+    time_transformer_depth: 1
+    freq_transformer_depth: 1
+    linear_transformer_depth: 0
+    heads: 4
+    dim_head: 16
+    mask_estimator_depth: 1
+    multi_stft_loss_weight: 0.0   # desactivar multi-STFT en smoke test
+  lr: 1.0e-4
+  multi_stft_loss_weight: 0.0
+
+data:
+  feature:
+    dim: 64
+    depth: 1
+    time_transformer_depth: 1
+    freq_transformer_depth: 1
+    linear_transformer_depth: 0
+    heads: 4
+    dim_head: 16
+    mask_estimator_depth: 1
+    multi_stft_loss_weight: 0.0
+  segment_seconds: 2.0
+  batch_size: 1
